@@ -42,10 +42,12 @@ class msgNet():
 		return r.json()
 	def getHistory(self, number):
 		r = requests.post(config["remote"]+"getHistory", data = {'number':number, 'token': config["token"], 'type': self.type})
-		print(r.encoding)
 		raw='<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>'
 		for i in r.json():
-			raw=raw+"<b>"+i[2]+"</b>: "+i[3]+"<br>"
+			try:
+				raw=raw+"<b>"+i[2]+"</b>: "+i[3]+"<br>"
+			except:
+				raw=raw+"<u>Invalid data received from server!</u><br>"
 		_translate = QtCore.QCoreApplication.translate
 		self.textBrowser.setText(_translate(None, raw))
 	def sendMsg(self):
