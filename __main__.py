@@ -52,12 +52,12 @@ class nanoNet():
 				raw=raw+"<u>Invalid data received from server!</u><br>"
 		_translate = QtCore.QCoreApplication.translate
 		self.textBrowser.setText(_translate(None, raw))
+		nanoPMWindow.scrollDown(self)
 	def sendMsg(self):
 		msg = nanoPMWindow.getMessageText(self)
 		nanoPMWindow.clearMessageText(self)
 		r = requests.post(config["remote"]+"sendMessage", data = {'recipient': self.number, 'msg': msg, 'token': config["token"], 'type': self.type})
 		nanoNet.getHistory(self, self.number)
-
 class nanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 	def __init__(self, number, name, type):
 		QtWidgets.QDialog.__init__(self)
@@ -69,14 +69,16 @@ class nanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 	        #self.text_box = QtWidgets.QTextEdit(self)
 		self.plainTextEdit.installEventFilter(self)
 		self.pushButton.clicked.connect(lambda: nanoNet.sendMsg(self))
+		self.refreshButton.clicked.connect(lambda: nanoNet.getHistory(self,number))
 		self.show()
 		nanoNet.getHistory(self, number)
-		self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
+		self.scrollDown()
 	def resizeEvent(self, event):
 		self.textBrowser.resize(self.width(), self.height()-55)
 		self.plainTextEdit.resize(self.width()-self.pushButton.width(),self.height()-self.textBrowser.height())
 		self.plainTextEdit.move(5,self.height()-self.plainTextEdit.height())
-		self.pushButton.move(self.plainTextEdit.width()+5,self.height()-self.pushButton.height()-15)
+		self.pushButton.move(self.plainTextEdit.width()+5,self.height()-self.plainTextEdit.height())
+		self.refreshButton.move(self.plainTextEdit.width()+5,self.height()-self.refreshButton.height())
 	def eventFilter(self, obj, event):
 		if event.type() == QtCore.QEvent.KeyPress and obj is self.plainTextEdit:
 			if event.key() == QtCore.Qt.Key_Return and self.plainTextEdit.hasFocus():
@@ -88,7 +90,8 @@ class nanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 		return self.plainTextEdit.toPlainText()
 	def clearMessageText(self):
 		self.plainTextEdit.clear()
-
+	def scrollDown(self):
+		self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
 if __name__ == "__main__":
 	app = QtWidgets.QApplication(sys.argv)
 	window = nanoListWindow()
