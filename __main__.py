@@ -18,6 +18,8 @@ class nanoListWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 		Ui_MainWindow.__init__(self)
 		self.setupUi(self)
 		self.listWidget.clicked.connect(lambda: self.openPMWindow(self.listWidget.selectedItems()))
+	def resizeEvent(self, event):
+		self.listWidget.resize(self.width()-20, self.height()-50)
 	def addContact(self, text, id, type):
 		_translate = QtCore.QCoreApplication.translate
 		item = QtWidgets.QListWidgetItem()
@@ -69,6 +71,12 @@ class nanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 		self.pushButton.clicked.connect(lambda: nanoNet.sendMsg(self))
 		self.show()
 		nanoNet.getHistory(self, number)
+		self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
+	def resizeEvent(self, event):
+		self.textBrowser.resize(self.width(), self.height()-55)
+		self.plainTextEdit.resize(self.width()-self.pushButton.width(),self.height()-self.textBrowser.height())
+		self.plainTextEdit.move(5,self.height()-self.plainTextEdit.height())
+		self.pushButton.move(self.plainTextEdit.width()+5,self.height()-self.pushButton.height()-15)
 	def eventFilter(self, obj, event):
 		if event.type() == QtCore.QEvent.KeyPress and obj is self.plainTextEdit:
 			if event.key() == QtCore.Qt.Key_Return and self.plainTextEdit.hasFocus():
