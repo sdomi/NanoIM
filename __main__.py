@@ -64,9 +64,17 @@ class msgPMWindow(QtWidgets.QMainWindow, PMWindow):
 		self.number = number
 		self.name = name
 		self.type = type
+	        #self.text_box = QtWidgets.QTextEdit(self)
+		self.plainTextEdit.installEventFilter(self)
 		self.pushButton.clicked.connect(lambda: msgNet.sendMsg(self))
 		self.show()
 		msgNet.getHistory(self, number)
+	def eventFilter(self, obj, event):
+		if event.type() == QtCore.QEvent.KeyPress and obj is self.plainTextEdit:
+			if event.key() == QtCore.Qt.Key_Return and self.plainTextEdit.hasFocus():
+				msgNet.sendMsg(self)
+				return super().eventFilter(obj, event)
+		return False
 	def getMessageText(self):
 		return self.plainTextEdit.toPlainText()
 	def clearMessageText(self):
