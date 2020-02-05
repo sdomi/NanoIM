@@ -12,7 +12,7 @@ PMWindow, PMWindowQtBaseClass = uic.loadUiType("priv.ui")
 contacts = []
 
 
-class msgListWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+class nanoListWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 	def __init__(self):
 		QtWidgets.QMainWindow.__init__(self)
 		Ui_MainWindow.__init__(self)
@@ -27,16 +27,16 @@ class msgListWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 		item.setData(0x0100, id)
 		item.setData(0x0101, type)
 	def populateContacts(self):
-		c = msgNet.getContacts('matrix')
+		c = nanoNet.getContacts('matrix')
 		for i in c:
 		    self.addContact(i['name'], i['id'], i['type'])
 	def openPMWindow(self, selected):
 		id = selected[0].data(0x0100)
 		type = selected[0].data(0x0101)
 		name = selected[0].text()
-		self.pm=msgPMWindow(id, name, type)
+		self.pm=nanoPMWindow(id, name, type)
 
-class msgNet():
+class nanoNet():
 	def getContacts(type):
 		r = requests.post(config["remote"]+"getContacts", data= {'token': config["token"], 'type': type})
 		return r.json()
@@ -51,12 +51,12 @@ class msgNet():
 		_translate = QtCore.QCoreApplication.translate
 		self.textBrowser.setText(_translate(None, raw))
 	def sendMsg(self):
-		msg = msgPMWindow.getMessageText(self)
-		msgPMWindow.clearMessageText(self)
+		msg = nanoPMWindow.getMessageText(self)
+		nanoPMWindow.clearMessageText(self)
 		r = requests.post(config["remote"]+"sendMessage", data = {'recipient': self.number, 'msg': msg, 'token': config["token"], 'type': self.type})
-		msgNet.getHistory(self, self.number)
+		nanoNet.getHistory(self, self.number)
 
-class msgPMWindow(QtWidgets.QMainWindow, PMWindow):
+class nanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 	def __init__(self, number, name, type):
 		QtWidgets.QDialog.__init__(self)
 		self.setupUi(self)
@@ -66,14 +66,15 @@ class msgPMWindow(QtWidgets.QMainWindow, PMWindow):
 		self.type = type
 	        #self.text_box = QtWidgets.QTextEdit(self)
 		self.plainTextEdit.installEventFilter(self)
-		self.pushButton.clicked.connect(lambda: msgNet.sendMsg(self))
+		self.pushButton.clicked.connect(lambda: nanoNet.sendMsg(self))
 		self.show()
-		msgNet.getHistory(self, number)
+		nanoNet.getHistory(self, number)
 	def eventFilter(self, obj, event):
 		if event.type() == QtCore.QEvent.KeyPress and obj is self.plainTextEdit:
 			if event.key() == QtCore.Qt.Key_Return and self.plainTextEdit.hasFocus():
-				msgNet.sendMsg(self)
-				return super().eventFilter(obj, event)
+				if not QtWidgets.QApplication.keyboardModifiers() == QtCore.Qt.ShiftModifier:
+					nanoNet.sendMsg(self)
+					return super().eventFilter(obj, event)
 		return False
 	def getMessageText(self):
 		return self.plainTextEdit.toPlainText()
@@ -82,7 +83,7 @@ class msgPMWindow(QtWidgets.QMainWindow, PMWindow):
 
 if __name__ == "__main__":
 	app = QtWidgets.QApplication(sys.argv)
-	window = msgListWindow()
+	window = nanoListWindow()
 	window.show()
 	window.populateContacts()
 	sys.exit(app.exec_())
