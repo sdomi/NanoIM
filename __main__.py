@@ -47,7 +47,10 @@ class nanoNet():
 		raw='<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>'
 		for i in r.json():
 			try:
-				raw=raw+"<b>"+i[2]+"</b>: "+i[3]+"<br>"
+				if(i['type']=="m.image"):
+					raw=raw+"<b>"+i['sender']+"</b>: <a href='"+i['images']['thumb']+"'><img src='"+i['images']['thumb']+"'></a><br>"
+				else:
+					raw=raw+"<b>"+i['sender']+"</b>: "+i['body']+"<br>"
 			except:
 				raw=raw+"<u>Invalid data received from server!</u><br>"
 		_translate = QtCore.QCoreApplication.translate
