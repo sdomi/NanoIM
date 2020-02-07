@@ -61,12 +61,13 @@ class NanoNet():
 					raw+=f'<b>{i["sender"]}</b>: {i["body"]}<br>'
 			except:
 				raw=raw+"<u>Invalid data received from server!</u><br>"
+		content = raw.replace('\n','<br />\n')
 		_translate = QtCore.QCoreApplication.translate
-		self.textBrowser.setText(_translate(None, raw))
+		self.textBrowser.setText(_translate(None, content))
 		NanoPMWindow.scrollDown(self)
 
 	def sendMsg(self):
-		msg = NanoPMWindow.getMessageText(self)
+		msg = NanoPMWindow.getMessageText(self).strip()
 		NanoPMWindow.clearMessageText(self)
 		r = requests.post(config["remote"]+"sendMessage", data = {'recipient': self.number, 'msg': msg, 'token': config["token"], 'type': self.type})
 		NanoNet.getHistory(self, self.number)
@@ -109,7 +110,8 @@ class NanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 			if event.key() == QtCore.Qt.Key_Return and self.plainTextEdit.hasFocus():
 				if not QtWidgets.QApplication.keyboardModifiers() == QtCore.Qt.ShiftModifier:
 					NanoNet.sendMsg(self)
-					return super().eventFilter(obj, event)
+					NanoPMWindow.clearMessageText(self)
+					return True
 		return False
 
 	def mousePressEvent(self, QMouseEvent):
