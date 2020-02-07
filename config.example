@@ -1,4 +1,7 @@
 {
-	"remote": "http://localhost:8888/",
-	"token": "asdf"
+	"remote": "http://localhost:8888",
+	"token": "asdf",
+	"networks": {
+		"matrix": "true"
+	}
 }

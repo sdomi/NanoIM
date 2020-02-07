@@ -33,9 +33,11 @@ class NanoListWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 		item.setData(0x0101, type)
 
 	def populateContacts(self):
-		c = NanoNet.getContacts('matrix')
+		c = []
+		if config["networks"]["matrix"] == "true":
+			c += NanoNet.getContacts('matrix')
 		for i in c:
-		    self.addContact(i['name'], i['id'], i['type'])
+			self.addContact(i['name'], i['id'], i['type'])
 
 	def openPMWindow(self, selected):
 		id = selected[0].data(0x0100)
@@ -83,11 +85,10 @@ class NanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 	def __init__(self, number, name, type):
 		QtWidgets.QDialog.__init__(self)
 		self.setupUi(self)
-		self.setWindowTitle(name+" - NanoIM")
+		self.setWindowTitle(f'{name} - NanoIM')
 		self.number = number
 		self.name = name
 		self.type = type
-	        #self.text_box = QtWidgets.QTextEdit(self)
 		self.plainTextEdit.installEventFilter(self)
 		self.textBrowser.setOpenExternalLinks(True)
 		self.pushButton.clicked.connect(lambda: NanoNet.sendMsg(self))
