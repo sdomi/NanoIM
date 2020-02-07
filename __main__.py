@@ -68,11 +68,10 @@ class nanoNet():
 		if not path.isfile(filename):
 			print('lauraisVERYcute')
 			r = requests.get(picture)
-			f=open(filename, 'wb')
-			f.write(r.content)
+			with open(filename, 'wb') as f:
+				f.write(r.content)
 		return filename
-			
-			
+
 class nanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 	def __init__(self, number, name, type):
 		QtWidgets.QDialog.__init__(self)
@@ -83,7 +82,7 @@ class nanoPMWindow(QtWidgets.QMainWindow, PMWindow):
 		self.type = type
 	        #self.text_box = QtWidgets.QTextEdit(self)
 		self.plainTextEdit.installEventFilter(self)
-		self.textBrowser.setOpenExternalLinks(True) 
+		self.textBrowser.setOpenExternalLinks(True)
 		self.pushButton.clicked.connect(lambda: nanoNet.sendMsg(self))
 		self.refreshButton.clicked.connect(lambda: nanoNet.getHistory(self,number))
 		self.show()
