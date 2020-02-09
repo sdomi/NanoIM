@@ -4,6 +4,7 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 import requests
 import json
+from datetime import datetime
 
 with open('config.json') as f:
 	config = json.load(f)
@@ -54,11 +55,13 @@ class NanoNet():
 		r = requests.post(config["remote"]+"getHistory", data = {'number':number, 'token': config["token"], 'type': self.type})
 		raw='<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>'
 		for i in r.json():
+			
+			timestamp = datetime.fromtimestamp(int(i["timestamp"])).strftime('%Y-%m-%d %H:%M:%S')
 			try:
 				if(i['type']=="m.image"):
-					raw+=f'<b>{i["sender"]}</b>: <a href="{i["images"]["orig"]}"><img src="{NanoNet.getPicture(i["images"]["thumb"], i["images"]["name"])}"></a><br>'
+					raw+=f'<span title="{timestamp}"><b>{i["sender"]}</b>: <a href="{i["images"]["orig"]}"><img src="{NanoNet.getPicture(i["images"]["thumb"], i["images"]["name"])}"></a></span><br>'
 				else:
-					raw+=f'<b>{i["sender"]}</b>: {i["body"]}<br>'
+					raw+=f'<span title="{timestamp}"><b>{i["sender"]}</b>: {i["body"]}</span><br>'
 			except:
 				raw=raw+"<u>Invalid data received from server!</u><br>"
 		content = raw.replace('\n','<br />\n')
